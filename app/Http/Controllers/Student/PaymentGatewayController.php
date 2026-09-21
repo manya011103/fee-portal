@@ -18,87 +18,91 @@ class PaymentGatewayController extends Controller
 
     // Step 1: Payment initiate karna, gateway pe redirect karna
     public function initiate(Request $request, FeeRecord $feeRecord)
-    {
-
-        if ($feeRecord->student_id !== auth('student')->id()) {
+{
+    if ($feeRecord->student_id !== auth('student')->id()) {
         abort(403, 'Unauthorized.');
     }
 
-        $student = $feeRecord->student;
+    $student = $feeRecord->student;
 
-        // Server pe dobara due fee calculate karo
-        $paidTotal = $feeRecord->payments()->sum('amount');
-        $totalPayable = $feeRecord->total_fee - $feeRecord->scholarship_fee;
-        $fine = $student->getFineAmount();
-        $dueFee = $totalPayable - $paidTotal + $fine;
+    // Server pe dobara due fee calculate karo
+    $paidTotal    = $feeRecord->payments()->sum('amount');
+    $totalPayable = $feeRecord->total_fee - $feeRecord->scholarship_fee;
+    $dueFee       = $totalPayable - $paidTotal;
 
-        $request->validate([
-            'amount' => [
-                'required',
-                'numeric',
-                'min:1',
-                'max:' . max($dueFee, 0),
-            ],
-        ]);
-
-        $merchantTxnNo = 'TXN' . uniqid();
-
-        // Pending transaction record banao — return aane pe isi se match karenge
-        PaymentTransaction::create([
-            'merchant_txn_no' => $merchantTxnNo,
-            'fee_record_id' => $feeRecord->id,
-            'amount' => $request->amount,
-            'status' => 'initiated',
-        ]);
-
-        $requestData = [
-            'merchantId' => config('paymentgateway.merchant_id'),
-            'aggregatorID' => config('paymentgateway.aggregator_id'),
-            'merchantTxnNo' => $merchantTxnNo,
-            'amount' => number_format($request->amount, 2, '.', ''),
-            'currencyCode' => '356',
-            'payType' => '0',
-            'customerEmailID' => 'noreply@feeportal.com',
-            'transactionType' => 'SALE',
-            'returnURL' => route('payment.return'),
-            'txnDate' => now()->format('YmdHis'),
-            'customerMobileNo' => $student->mobile,
-            'customerName' => $student->name,
-            'addlParam1' => '000',
-            'addlParam2' => '111',
-        ];
-
-        ksort($requestData);
-        $plainHashtext = implode('', $requestData);
-        $secureHash = $this->hmacDigest($plainHashtext, config('paymentgateway.secret_key'));
-        $requestData['secureHash'] = $secureHash;
-
-        try {
-    $response = \Illuminate\Support\Facades\Http::withoutVerifying()
-        ->withHeaders(['Content-Type' => 'application/json', 'Accept' => 'application/json'])
-        ->post(config('paymentgateway.initiate_sale_url'), $requestData);
-
-    Log::info('Payment gateway raw response', [
-        'status' => $response->status(),
-        'body' => $response->body(),
-    ]);
-
-    $responseData = $response->json();
-} catch (\Exception $e) {
-    Log::error('Payment gateway connection error', ['message' => $e->getMessage()]);
-    return back()->withErrors(['amount' => 'Could not connect to payment gateway. Please try again.']);
-}
-
-if (isset($responseData['responseCode']) && $responseData['responseCode'] === 'R1000') {
-    $paymentUrl = $responseData['redirectURI'] . '?tranCtx=' . urlencode($responseData['tranCtx']);
-    return redirect()->away($paymentUrl);
-}
-
-Log::error('Payment initiation failed', ['response' => $responseData]);
-
-return back()->withErrors(['amount' => 'Could not initiate payment. Please try again.']);
+    if ($dueFee <= 0) {
+        return back()->withErrors(['amount' => 'No due fee pending.']);
     }
 
+    if ($student->getDaysLate() > 0) {
+        // Due date nikal gayi: amount fix hai (due + fine + scholarship lapse)
+        // Request se aane wala amount ignore hoga
+        $amount = $dueFee + $student->getFineAmount() + $feeRecord->scholarship_fee;
+    } else {
+        // Due date baaki hai: user apna amount dalega (max = due fee)
+        $request->validate([
+            'amount' => ['required', 'numeric', 'min:1', 'max:' . $dueFee],
+        ]);
+        $amount = $request->amount;
+    }
+
+    $merchantTxnNo = 'TXN' . uniqid();
+
+    // Pending transaction record banao — return aane pe isi se match karenge
+    PaymentTransaction::create([
+        'merchant_txn_no' => $merchantTxnNo,
+        'fee_record_id'   => $feeRecord->id,
+        'amount'          => $amount,
+        'status'          => 'initiated',
+    ]);
+
+    $requestData = [
+        'merchantId'       => config('paymentgateway.merchant_id'),
+        'aggregatorID'     => config('paymentgateway.aggregator_id'),
+        'merchantTxnNo'    => $merchantTxnNo,
+        'amount'           => number_format($amount, 2, '.', ''),
+        'currencyCode'     => '356',
+        'payType'          => '0',
+        'customerEmailID'  => 'noreply@feeportal.com',
+        'transactionType'  => 'SALE',
+        'returnURL'        => route('payment.return'),
+        'txnDate'          => now()->format('YmdHis'),
+        'customerMobileNo' => $student->mobile,
+        'customerName'     => $student->name,
+        'addlParam1'       => '000',
+        'addlParam2'       => '111',
+    ];
+
+    ksort($requestData);
+    $plainHashtext = implode('', $requestData);
+    $secureHash = $this->hmacDigest($plainHashtext, config('paymentgateway.secret_key'));
+    $requestData['secureHash'] = $secureHash;
+
+    try {
+        $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+            ->withHeaders(['Content-Type' => 'application/json', 'Accept' => 'application/json'])
+            ->post(config('paymentgateway.initiate_sale_url'), $requestData);
+
+        Log::info('Payment gateway raw response', [
+            'status' => $response->status(),
+            'body'   => $response->body(),
+        ]);
+
+        $responseData = $response->json();
+    } catch (\Exception $e) {
+        Log::error('Payment gateway connection error', ['message' => $e->getMessage()]);
+        return back()->withErrors(['amount' => 'Could not connect to payment gateway. Please try again.']);
+    }
+
+    if (isset($responseData['responseCode']) && $responseData['responseCode'] === 'R1000') {
+        $paymentUrl = $responseData['redirectURI'] . '?tranCtx=' . urlencode($responseData['tranCtx']);
+        return redirect()->away($paymentUrl);
+    }
+
+    Log::error('Payment initiation failed', ['response' => $responseData]);
+
+    return back()->withErrors(['amount' => 'Could not initiate payment. Please try again.']);
+}
     // Step 2: Bank se wapas aane pe — verify karke save karna
     public function handleReturn(Request $request)
 {
