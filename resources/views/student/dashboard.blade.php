@@ -368,7 +368,7 @@
 
         @endif
 
-    </div>
+    </div> 
 
 </div>
             @if ($dueFee <= 0)
