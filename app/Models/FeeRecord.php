@@ -37,4 +37,6 @@ class FeeRecord extends Model
 {
     return $this->hasMany(FeePayment::class);
 }
+
+    
 }

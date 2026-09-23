@@ -241,60 +241,206 @@
             <h3 class="font-bold text-lg mb-5 text-gray-800">{{ $record->class_name }}</h3>
 
             <!-- Summary Cards -->
-<div class="grid grid-cols-1 gap-3">
-                <div class="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Total Fee</p>
-                    <p class="text-lg font-bold text-gray-800">₹{{ number_format($record->total_fee) }}</p>
-                </div>
+<!-- Fee Summary -->
+<div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
-                <div class="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scholarship</p>
-                    <p class="text-lg font-bold text-gray-800">₹{{ number_format($record->scholarship_fee) }}</p>
-                </div>
+     
 
-                <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                    <p class="text-xs font-medium text-blue-600 uppercase tracking-wide mb-2">Total Payable</p>
-                    <p class="text-lg font-bold text-blue-700">₹{{ number_format($totalPayable) }}</p>
-                </div>
+    <!-- Fee Details -->
+    <div class="px-5 py-5">
 
-                
+        <!-- Basic Fee -->
+        <div class="space-y-3">
 
-                <div class="bg-green-50 border border-green-100 rounded-lg p-4 text-center relative">
-                    <p class="text-xs font-medium text-green-600 uppercase tracking-wide mb-2 flex items-center justify-center gap-1.5">
+            <!-- Total Fee -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">
+                    Total Fee
+                </span>
+
+                <span class="text-sm font-semibold text-gray-800">
+                    ₹{{ number_format($record->total_fee) }}
+                </span>
+            </div>
+
+
+            <!-- Scholarship -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">
+                    Scholarship
+                </span>
+
+                <span class="text-sm font-semibold text-gray-800">
+                    − ₹{{ number_format($record->scholarship_fee) }}
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Separator -->
+        <div class="border-t border-gray-200 my-4"></div>
+
+
+        <!-- Total Payable -->
+        <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-blue-700">
+                Total Payable
+            </span>
+
+            <span class="text-base font-bold text-blue-700">
+                ₹{{ number_format($totalPayable) }}
+            </span>
+        </div>
+
+
+        <!-- Payment Status -->
+        <div class="mt-7 space-y-3">
+
+            <!-- Total Paid -->
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center gap-2">
+
+                    <span class="text-sm text-gray-600">
                         Total Paid
-                        <button type="button"
-                            onclick="document.getElementById('{{ $modalId }}').classList.remove('hidden')"
-                            title="View fee history"
-                            class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-green-600 text-white hover:bg-green-700 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </button>
-                    </p>
-                    <p class="text-lg font-bold text-green-700">₹{{ number_format($paidTotal) }}</p>
+                    </span>
+
+                    <!-- History Button -->
+                    <button type="button"
+                        onclick="document.getElementById('{{ $modalId }}').classList.remove('hidden')"
+                        title="View fee history"
+                        class="inline-flex items-center justify-center
+                               h-5 w-5 rounded-full
+                               bg-green-600 text-white
+                               hover:bg-green-700 transition">
+
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-3 w-3"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2.5">
+
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 11-18 0" />
+
+                        </svg>
+
+                    </button>
+
+                </div>
+
+                <span class="text-sm font-semibold text-green-700">
+                    ₹{{ number_format($paidTotal) }}
+                </span>
+
+            </div>
+
+
+            <!-- Due Fee -->
+            <div class="flex items-center justify-between">
+
+                <span class="text-sm text-gray-600">
+                    Due Fee
+                </span>
+
+                <span class="text-sm font-semibold
+                    {{ $dueFee > 0 ? 'text-red-600' : 'text-gray-700' }}">
+
+                    ₹{{ number_format(max($dueFee, 0)) }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @if ($isLate && $dueFee > 0)
+
+            <!-- Additional Charges Separator -->
+            <div class="border-t border-gray-200 my-4"></div>
+
+
+            <!-- Additional Charges -->
+            <div class="space-y-3">
+
+                <!-- Fine -->
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-gray-600">
+                        Fine
+                    </span>
+
+                    <span class="text-sm font-semibold text-orange-600">
+                        ₹{{ number_format($fine) }}
+                    </span>
+
                 </div>
 
 
-                <div class="{{ $dueFee > 0 ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-100' }} border rounded-lg p-4 text-center">
-                    <p class="text-xs font-medium {{ $dueFee > 0 ? 'text-red-600' : 'text-gray-500' }} uppercase tracking-wide mb-2">Due Fee</p>
-                    <p class="text-lg font-bold {{ $dueFee > 0 ? 'text-red-700' : 'text-gray-700' }}">
-                        ₹{{ number_format(max($dueFee, 0)) }}
-                    </p>
+                <!-- Scholarship Lapse -->
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-gray-600">
+                        Scholarship Lapse
+                    </span>
+
+                    <span class="text-sm font-semibold text-orange-600">
+                        ₹{{ number_format($record->scholarship_fee) }}
+                    </span>
+
                 </div>
 
-                @if ($isLate && $dueFee > 0)
-            <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 text-center">
-                <p class="text-xs font-medium text-orange-600 uppercase tracking-wide mb-2">Fine + Scholarship Lapse</p>
-                <p class="text-lg font-bold text-orange-700">₹{{ number_format($fine) }} + ₹{{ number_format($record->scholarship_fee) }}</p>
-                <p class="text-lg font-bold text-orange-700">Total Fine = ₹{{ number_format($totalFine) }}</p>
             </div>
 
-            <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 text-center">
-                <p class="text-xs font-medium text-orange-600 uppercase tracking-wide mb-2">Total Payable Amount</p>
-                <p class="text-lg font-bold text-orange-700">₹{{ number_format($payableWithFine) }}</p>
+
+            <!-- Separator -->
+            <div class="border-t border-gray-200 my-4"></div>
+
+
+            <!-- Total Fine -->
+            <div class="flex items-center justify-between">
+
+                <span class="text-sm font-semibold text-gray-700">
+                    Total Fine
+                </span>
+
+                <span class="text-sm font-bold text-orange-600">
+                    ₹{{ number_format($totalFine) }}
+                </span>
+
             </div>
+
+
+            <!-- Final Payable -->
+            <div class="mt-6 pt-4 border-t border-gray-200">
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm font-bold text-gray-800 uppercase">
+                        Total Payable Amount
+                    </span>
+
+                    <span class="text-lg font-bold text-orange-600">
+                        ₹{{ number_format($payableWithFine) }}
+                    </span>
+
+                </div>
+
+                <p class="text-xs text-gray-400 mt-1">
+                    Due Fee + Total Fine
+                </p>
+
+            </div>
+
         @endif
 
+    </div> 
+
+</div>
 
             </div>
 
