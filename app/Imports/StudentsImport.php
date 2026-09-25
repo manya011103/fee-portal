@@ -82,6 +82,8 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 }
             }
 
+            $feeRecord->recalculateFullyPaid(); 
+
             $this->successCount++;
         }
     }

@@ -37,25 +37,20 @@
 
 
     @php
-    // Saare fee records ka overall status
-    $totalDue = 0;
-    $scholarshipAtRisk = 0;
+    $calculator = app(\App\Services\FeeCalculator::class);
+    $summary = $calculator->forStudent($student);
 
-    foreach ($student->feeRecords as $r) {
-        $due = ($r->total_fee - $r->scholarship_fee) - $r->payments()->sum('amount');
-        if ($due > 0) {
-            $totalDue += $due;
-            $scholarshipAtRisk += $r->scholarship_fee;
-        }
-    }
+    $totalDue = $summary['total_due'];
+    $fineNow = $summary['fine'];
+    $scholarshipAtRisk = $summary['scholarship_at_risk'];
+    $payableWithFine = $summary['payable_today'];
 
-    $dueDate   = $student->getEffectiveDueDate();
-    $daysLate  = $student->getDaysLate();
-    $daysLeft  = (int) now()->startOfDay()->diffInDays($dueDate->copy()->startOfDay(), false);
-    $fineNow   = $student->getFineAmount();
-    $payableWithFine = $totalDue + $fineNow + $scholarshipAtRisk;
+    $dueDate = $student->getEffectiveDueDate();
+    $daysLate = $student->getDaysLate();
+    $daysLeft = (int) now()->startOfDay()
+        ->diffInDays($dueDate->copy()->startOfDay(), false);
 
-    if ($totalDue <= 0) {
+    if ($summary['is_fully_paid']) {
         $noticeType = 'paid';
     } elseif ($daysLate > 0) {
         $noticeType = 'late';
@@ -133,16 +128,19 @@
 <h2 class="text-xl font-bold mb-4">Fee Records</h2>
 
 @forelse ($student->feeRecords as $index => $record)
-    @php
-            $paidTotal = $record->payments()->sum('amount');
-            $totalPayable = $record->total_fee - $record->scholarship_fee;
-            $fine = $student->getFineAmount();
-            $totalFine = $fine + $record->scholarship_fee;
-            $dueFee = $totalPayable - $paidTotal; 
-            $payableWithFine = $dueFee + $totalFine;
-            $modalId = 'fee-history-' . $index;
-            $isLate = $student->getDaysLate() > 0;
-        @endphp
+   @php
+    $calculation = $summary['records'][$record->id];
+
+    $paidTotal = $calculation['paid_total'];
+    $totalPayable = $calculation['total_payable'];
+    $dueFee = $calculation['due_fee'];
+    $fine = $calculation['fine'];
+    $totalFine = $calculation['total_fine'];
+    $payableWithFine = $calculation['payable_today'];
+    $isLate = $calculation['is_late'];
+
+    $modalId = 'fee-history-' . $index;
+@endphp
 
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">

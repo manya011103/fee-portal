@@ -18,14 +18,15 @@ class BuildFeeReminderQueue extends Command
         // Purani queue clear karo, fresh banao
         FeeReminderQueue::truncate();
 
-        $students = Student::with('feeRecords.payments')->get();
+        // Sirf un students ko lao jinki koi fee record abhi bhi pending hai
+        // — database khud filter karega, PHP mein har student ke liye calculate nahi karna padega
+        $students = Student::whereHas('feeRecords', function ($query) {
+            $query->where('is_fully_paid', false);
+        })->get();
+
         $count = 0;
 
         foreach ($students as $student) {
-            if ($student->getOutstandingBalance() <= 0) {
-                continue;
-            }
-
             $dueDate = $student->getEffectiveDueDate();
             $daysUntilDue = (int) now()->startOfDay()->diffInDays($dueDate->copy()->startOfDay(), false);
 

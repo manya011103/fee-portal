@@ -14,18 +14,7 @@ class FeeRecord extends Model
         'class_name',
         'total_fee',
         'scholarship_fee',
-        'fee1_paid_date',
-        'fee1_paid_amt',
-        'fee2_paid_date',
-        'fee2_paid_amt',
-        'fee3_paid_date',
-        'fee3_paid_amt',
-        'fee4_paid_date',
-        'fee4_paid_amt',
-        'fee5_paid_date',
-        'fee5_paid_amt',
-        'fee6_paid_date',
-        'fee6_paid_amt',
+        'is_fully_paid',
     ];
 
     public function student()
@@ -34,9 +23,15 @@ class FeeRecord extends Model
     }
 
     public function payments()
-{
-    return $this->hasMany(FeePayment::class);
-}
+    {
+        return $this->hasMany(FeePayment::class);
+    }
 
-    
+    public function recalculateFullyPaid(): void
+    {
+        $paidTotal = $this->payments()->sum('amount');
+        $totalPayable = $this->total_fee - $this->scholarship_fee;
+
+        $this->update(['is_fully_paid' => $paidTotal >= $totalPayable]);
+    }
 }

@@ -53,14 +53,16 @@ class Student extends Authenticatable
 
     // Naya method: kitni fee abhi bhi baki hai (fine ke bina), saari classes milake
     public function getOutstandingBalance(): float
-    {
-        return $this->feeRecords->sum(function ($record) {
-            $paid = collect(range(1, 6))
-                ->sum(fn ($i) => $record->{"fee{$i}_paid_amt"} ?? 0);
+{
+    return $this->feeRecords->sum(function ($record) {
+        $totalPayable = (float) $record->total_fee
+            - (float) $record->scholarship_fee;
 
-            return ($record->total_fee - $record->scholarship_fee) - $paid;
-        });
-    }
+        $paidTotal = (float) $record->payments()->sum('amount');
+
+        return max($totalPayable - $paidTotal, 0);
+    });
+}
 
     public function getFineAmount(): int
     {

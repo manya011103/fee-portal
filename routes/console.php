@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('fee:build-reminder-queue')->dailyAt('05:00');
 
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
