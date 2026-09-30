@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\DueDateController;
 use App\Http\Controllers\Student\PaymentGatewayController;
+use App\Http\Controllers\Admin\PaymentReportController;
+
 
 // Login (Guest) Routes
 Route::get('/login', [OtpLoginController::class, 'showLoginForm'])->name('login');
@@ -21,9 +23,7 @@ Route::post('/logout', [OtpLoginController::class, 'logout'])->name('logout');
 
 // Admin Routes (protected)
 Route::middleware('auth:web')->prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::resource('students', StudentController::class)->names('admin.students');
 
@@ -34,6 +34,8 @@ Route::middleware('auth:web')->prefix('admin')->group(function () {
             ->name('admin.students.due-date.resend');
         Route::post('/students/{student}/due-date/confirm', [DueDateController::class, 'confirm'])
             ->name('admin.students.due-date.confirm');
+
+        Route::get('/payment-report', [PaymentReportController::class, 'index'])->name('admin.payment-report');
     });
 });
 

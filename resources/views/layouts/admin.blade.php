@@ -24,6 +24,11 @@
                     class="block px-3 py-2 rounded hover:bg-gray-700 {{ request()->routeIs('admin.students.import*') ? 'bg-gray-700' : '' }}">
                      Import Students
                 </a>
+
+                <a href="{{ route('admin.payment-report') }}"
+   class="block px-3 py-2 rounded hover:bg-gray-700 {{ request()->routeIs('admin.payment-report') ? 'bg-gray-700' : '' }}">
+    Payment Report
+</a>
             </nav>
 
             <form method="POST" action="{{ route('logout') }}">

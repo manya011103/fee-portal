@@ -155,7 +155,7 @@ class PaymentGatewayController extends Controller
     /**
      * Receive the gateway callback and verify the payment status.
      */
-    public function handleReturn(Request $request)
+    public function handleReturn(Request $request, FeeCalculator $calculator)
 {
     $merchantTxnNo = $request->input('merchantTxnNo')
         ?? $request->input('MerchantTxnNo');
@@ -179,6 +179,9 @@ class PaymentGatewayController extends Controller
                 'payment' => 'Transaction not found.',
             ]);
     }
+
+    $calculation = $calculator->forRecord($transaction->feeRecord);
+
 
     $student = $transaction->feeRecord->student;
 
@@ -225,40 +228,19 @@ class PaymentGatewayController extends Controller
     ]);
 
     /*
-     * ⚠️ TEMPORARY FOR TESTING ONLY ⚠️
-     * 429 ko yahan success maan rahe hain taaki baaki flow test ho sake.
-     * Real launch se pehle ye block HATANA ZAROORI HAI.
+     429 error handeling
      */
+    
     if ($result['status'] === 429) {
-    Log::warning('TEMP: Treating 429 as success for testing', [
+    Log::warning('Payment status request was rate limited', [
         'txn' => $merchantTxnNo,
     ]);
 
-    DB::transaction(function () use ($transaction) {
-        $lockedTransaction = PaymentTransaction::query()
-            ->whereKey($transaction->id)
-            ->lockForUpdate()
-            ->first();
-
-        if (! $lockedTransaction || $lockedTransaction->status === 'success') {
-            return;
-        }
-
-        $lockedTransaction->update(['status' => 'success']);
-
-        FeePayment::create([
-            'fee_record_id' => $lockedTransaction->fee_record_id,
-            'amount' => $lockedTransaction->amount,
-            'payment_date' => now()->toDateString(),
-            'payment_mode' => 'portal',
-        ]);
-
-        $lockedTransaction->feeRecord->recalculateFullyPaid();   // 👈 ye line add ki
-    });
-
     return redirect()
         ->route('student.dashboard')
-        ->with('status', "Payment of ₹{$transaction->amount} successful! (test mode)");
+        ->withErrors([
+            'payment' => 'Your payment is being verified. Please check again in a few minutes.',
+        ]);
 }
 
     if ($result['error']) {
@@ -312,7 +294,7 @@ class PaymentGatewayController extends Controller
     $txnStatus = strtoupper((string) ($statusResult['txnStatus'] ?? ''));
 
     if ($txnStatus === 'SUC') {
-    DB::transaction(function () use ($transaction) {
+    DB::transaction(function () use ($transaction, $calculation) {
         $lockedTransaction = PaymentTransaction::query()
             ->whereKey($transaction->id)
             ->lockForUpdate()
@@ -325,11 +307,13 @@ class PaymentGatewayController extends Controller
         $lockedTransaction->update(['status' => 'success']);
 
         FeePayment::create([
-            'fee_record_id' => $lockedTransaction->fee_record_id,
-            'amount' => $lockedTransaction->amount,
-            'payment_date' => now()->toDateString(),
-            'payment_mode' => 'portal',
-        ]);
+    'fee_record_id' => $lockedTransaction->fee_record_id,
+    'amount' => $lockedTransaction->amount,
+    'fine_portion' => $calculation['fine'] ?? 0,
+    'scholarship_lapse_portion' => $calculation['scholarship_lapse'] ?? 0,
+    'payment_date' => now()->toDateString(),
+    'payment_mode' => 'portal',
+]);
 
         $lockedTransaction->feeRecord->recalculateFullyPaid();   // 👈 ye line add ki
     });
