@@ -29,6 +29,23 @@
    class="block px-3 py-2 rounded hover:bg-gray-700 {{ request()->routeIs('admin.payment-report') ? 'bg-gray-700' : '' }}">
     Payment Report
 </a>
+
+                <a href="{{ route('admin.scholarship-lapse-report') }}"
+   class="block px-3 py-2 rounded hover:bg-gray-700 {{ request()->routeIs('admin.scholarship-lapse-report') ? 'bg-gray-700' : '' }}">
+    Scholarship Lapse Report
+</a>
+
+<a href="{{ route('admin.no-dues-report') }}"
+   class="block px-3 py-2 rounded hover:bg-gray-700 {{ request()->routeIs('admin.no-dues-report') ? 'bg-gray-700' : '' }}">
+    No Dues Report
+</a>
+
+<a href="{{ route('admin.late-fee-report') }}"
+   class="block px-3 py-2 rounded hover:bg-gray-700 {{ request()->routeIs('admin.late-fee-report') ? 'bg-gray-700' : '' }}">
+    Late Fee Collection Report
+</a>
+
+
             </nav>
 
             <form method="POST" action="{{ route('logout') }}">

@@ -7,6 +7,11 @@ use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\DueDateController;
 use App\Http\Controllers\Student\PaymentGatewayController;
 use App\Http\Controllers\Admin\PaymentReportController;
+use App\Http\Controllers\Admin\ScholarshipLapseReportController;
+use App\Http\Controllers\Admin\NoDuesReportController;
+use App\Http\Controllers\Admin\LateFeeReportController;
+
+
 
 
 // Login (Guest) Routes
@@ -36,6 +41,13 @@ Route::middleware('auth:web')->prefix('admin')->group(function () {
             ->name('admin.students.due-date.confirm');
 
         Route::get('/payment-report', [PaymentReportController::class, 'index'])->name('admin.payment-report');
+        Route::get('/scholarship-lapse-report', [ScholarshipLapseReportController::class, 'index'])
+    ->name('admin.scholarship-lapse-report');
+    Route::get('/no-dues-report', [NoDuesReportController::class, 'index'])
+    ->name('admin.no-dues-report');
+
+    Route::get('/late-fee-report', [LateFeeReportController::class, 'index'])
+    ->name('admin.late-fee-report');
     });
 });
 
