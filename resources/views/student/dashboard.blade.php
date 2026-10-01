@@ -134,10 +134,20 @@
     $paidTotal = $calculation['paid_total'];
     $totalPayable = $calculation['total_payable'];
     $dueFee = $calculation['due_fee'];
-    $fine = $calculation['fine'];
-    $totalFine = $calculation['total_fine'];
-    $payableWithFine = $calculation['payable_today'];
     $isLate = $calculation['is_late'];
+
+    // Fully paid ho chuka hai toh actual payments se historical fine/lapse nikalo
+    $finePaidHistorical = $record->payments->sum('fine_portion');
+    $scholarshipLapseHistorical = $record->payments->sum('scholarship_lapse_portion');
+
+    // Abhi due hai toh live calculation use karo, warna history use karo
+    $fine = $dueFee > 0 ? $calculation['fine'] : $finePaidHistorical;
+    $scholarshipLapseAmount = $dueFee > 0 ? $calculation['scholarship_lapse'] : $scholarshipLapseHistorical;
+    $totalFine = $fine + $scholarshipLapseAmount;
+    $payableWithFine = $calculation['payable_today'];
+
+    // Section dikhana hai ya nahi — abhi due ho aur late ho, YA history mein fine/lapse laga tha
+    $showFineSection = ($isLate && $dueFee > 0) || $finePaidHistorical > 0 || $scholarshipLapseHistorical > 0;
 
     $modalId = 'fee-history-' . $index;
 @endphp
@@ -286,7 +296,7 @@
         </div>
 
 
-        @if ($isLate && $dueFee > 0)
+        @if ($showFineSection)
 
             <!-- Additional Charges Separator -->
             <div class="border-t border-gray-200 my-4"></div>
@@ -317,7 +327,7 @@
                     </span>
 
                     <span class="text-sm font-semibold text-orange-600">
-                        ₹{{ number_format($record->scholarship_fee) }}
+                        ₹{{ number_format($scholarshipLapseAmount) }}
                     </span>
 
                 </div>
