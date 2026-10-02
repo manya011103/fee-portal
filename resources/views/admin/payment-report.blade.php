@@ -57,6 +57,7 @@
                     <th class="px-4 py-3">Class</th>
                     <th class="px-4 py-3">Mobile</th>
                     <th class="px-4 py-3">Amount</th>
+                    <th class="px-4 py-3">Payment Mode</th>
                     <th class="px-4 py-3">Date</th>
                 </tr>
             </thead>
@@ -68,11 +69,12 @@
                         <td class="px-4 py-3">{{ $payment->feeRecord->class_name ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $payment->feeRecord->student->mobile ?? '-' }}</td>
                         <td class="px-4 py-3 font-medium">₹{{ number_format($payment->amount) }}</td>
+                        <td class="px-4 py-3 capitalize">{{ $payment->payment_mode ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $payment->payment_date->format('d M Y') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-6 text-center text-gray-500">
+                        <td colspan="7" class="px-4 py-6 text-center text-gray-500">
                             No payments found for the selected filters.
                         </td>
                     </tr>
