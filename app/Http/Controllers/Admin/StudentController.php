@@ -11,7 +11,7 @@ class StudentController extends Controller
 {
     public function index(Request $request)
 {
-    $query = Student::query();
+    $query = Student::with('feeRecords');
 
     if ($request->filled('class')) {
         $query->whereHas('feeRecords', function ($q) use ($request) {

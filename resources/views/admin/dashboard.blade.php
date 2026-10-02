@@ -63,7 +63,6 @@
     <!-- Student Status (separate cards, always colored) -->
 <div class="mb-3 flex items-center justify-between">
     <h2 class="text-lg font-bold text-gray-800">Student Status</h2>
-    <span class="text-xs text-gray-400">Live snapshot, not affected by date filter above</span>
 </div>
 
 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">

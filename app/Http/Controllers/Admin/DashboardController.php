@@ -29,10 +29,10 @@ class DashboardController extends Controller
         $pendingCount = $totalStudents - $fullyPaidCount;
 
         $overdueCount = Student::whereHas('feeRecords', function ($q) {
-            $q->where('is_fully_paid', false);
-        })->whereNotNull('due_date')
-            ->where('due_date', '<', now())
-            ->count();
+    $q->where('is_fully_paid', false);
+})->get()->filter(function (Student $student): bool {
+    return $student->getEffectiveDueDate()->isPast();
+})->count();
 
         $recentPayments = FeePayment::with('feeRecord.student')
             ->latest('payment_date')
