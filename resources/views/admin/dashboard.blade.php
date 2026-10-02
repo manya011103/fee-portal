@@ -5,106 +5,95 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
 
-    <!-- Date Range Filter -->
-    <form method="GET" action="{{ route('admin.dashboard') }}" class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6 flex flex-wrap items-end gap-4">
-        <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Start Date</label>
-            <input type="date" name="start_date" value="{{ $startDate }}" class="border rounded px-3 py-2 text-sm">
-        </div>
-        <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">End Date</label>
-            <input type="date" name="end_date" value="{{ $endDate }}" class="border rounded px-3 py-2 text-sm">
-        </div>
-        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium">
-            Apply Filter
-        </button>
-    </form>
+    <!-- Financial Summary (date-filtered) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-bold text-gray-800">Financial Summary</h2>
+                <p class="text-xs text-gray-400 mt-0.5">Figures below reflect the selected date range only</p>
+            </div>
 
-    <!-- Financial Summary -->
-    <h2 class="text-lg font-bold mb-3 text-gray-700">Financial Summary ({{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} — {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }})</h2>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Collected</p>
-            <p class="text-2xl font-bold text-gray-800">₹{{ number_format($totalCollected) }}</p>
-        </div>
-
-        <div class="bg-blue-50 p-5 rounded-lg shadow-sm border border-blue-100">
-            <p class="text-xs text-blue-600 uppercase tracking-wide mb-1">Base Fee Collected</p>
-            <p class="text-2xl font-bold text-blue-700">₹{{ number_format($baseFeeCollected) }}</p>
+            <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-end gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Start Date</label>
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="border rounded px-3 py-1.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">End Date</label>
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="border rounded px-3 py-1.5 text-sm">
+                </div>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded text-sm font-medium">
+                    Apply
+                </button>
+                <a href="{{ route('admin.dashboard') }}"
+                    class="text-gray-500 hover:text-gray-700 border border-gray-300 hover:border-gray-400 px-4 py-1.5 rounded text-sm font-medium">
+                    Reset
+                </a>
+            </form>
         </div>
 
-        <div class="bg-orange-50 p-5 rounded-lg shadow-sm border border-orange-100">
-            <p class="text-xs text-orange-600 uppercase tracking-wide mb-1">Late Fee Collected</p>
-            <p class="text-2xl font-bold text-orange-700">₹{{ number_format($fineCollected) }}</p>
+        <div class="px-6 py-3 text-xs text-gray-400">
+            {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} — {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
         </div>
 
-        <div class="bg-red-50 p-5 rounded-lg shadow-sm border border-red-100">
-            <p class="text-xs text-red-600 uppercase tracking-wide mb-1">Scholarship Lapse Collected</p>
-            <p class="text-2xl font-bold text-red-700">₹{{ number_format($scholarshipLapseCollected) }}</p>
-        </div>
-    </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 pt-0">
+            <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Collected</p>
+                <p class="text-2xl font-bold text-gray-800">₹{{ number_format($totalCollected) }}</p>
+            </div>
 
-    <!-- Student Status -->
-    <h2 class="text-lg font-bold mb-3 text-gray-700">Student Status</h2>
+            <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
+                <p class="text-xs text-blue-600 uppercase tracking-wide mb-1">Base Fee Collected</p>
+                <p class="text-2xl font-bold text-blue-700">₹{{ number_format($baseFeeCollected) }}</p>
+            </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Students</p>
-            <p class="text-2xl font-bold text-gray-800">{{ $totalStudents }}</p>
-        </div>
+            <div class="bg-orange-50 p-5 rounded-lg border border-orange-100">
+                <p class="text-xs text-orange-600 uppercase tracking-wide mb-1">Late Fee Collected</p>
+                <p class="text-2xl font-bold text-orange-700">₹{{ number_format($fineCollected) }}</p>
+            </div>
 
-        <div class="bg-green-50 p-5 rounded-lg shadow-sm border border-green-100">
-            <p class="text-xs text-green-600 uppercase tracking-wide mb-1">Fully Paid</p>
-            <p class="text-2xl font-bold text-green-700">{{ $fullyPaidCount }}</p>
-        </div>
-
-        <div class="bg-yellow-50 p-5 rounded-lg shadow-sm border border-yellow-100">
-            <p class="text-xs text-yellow-600 uppercase tracking-wide mb-1">Pending</p>
-            <p class="text-2xl font-bold text-yellow-700">{{ $pendingCount }}</p>
-        </div>
-
-        <div class="bg-red-50 p-5 rounded-lg shadow-sm border border-red-100">
-            <p class="text-xs text-red-600 uppercase tracking-wide mb-1">Overdue</p>
-            <p class="text-2xl font-bold text-red-700">{{ $overdueCount }}</p>
+            <div class="bg-red-50 p-5 rounded-lg border border-red-100">
+                <p class="text-xs text-red-600 uppercase tracking-wide mb-1">Scholarship Lapse Collected</p>
+                <p class="text-2xl font-bold text-red-700">₹{{ number_format($scholarshipLapseCollected) }}</p>
+            </div>
         </div>
     </div>
 
-    <!-- Reminder Queue Status -->
-    <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100 mb-8">
-        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Reminders Currently Queued</p>
-        <p class="text-2xl font-bold text-gray-800">{{ $queuedReminders }}</p>
-    </div>
+    <!-- Student Status (unified bar, NOT date-filtered) -->
+    <!-- Student Status (separate cards, always colored) -->
+<div class="mb-3 flex items-center justify-between">
+    <h2 class="text-lg font-bold text-gray-800">Student Status</h2>
+    <span class="text-xs text-gray-400">Live snapshot, not affected by date filter above</span>
+</div>
 
-    <!-- Recent Payments -->
-    <h2 class="text-lg font-bold mb-3 text-gray-700">Recent Payments</h2>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+    <a href="{{ route('admin.students.index') }}"
+        class="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:shadow-md hover:-translate-y-0.5 transition block">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Total Students</p>
+        <p class="text-3xl font-bold text-gray-800">{{ $totalStudents }}</p>
+    </a>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-x-auto">
-        <table class="w-full text-left text-sm">
-            <thead class="bg-gray-50 border-b">
-                <tr>
-                    <th class="px-4 py-3">Student</th>
-                    <th class="px-4 py-3">Class</th>
-                    <th class="px-4 py-3">Amount</th>
-                    <th class="px-4 py-3">Date</th>
-                    <th class="px-4 py-3">Mode</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($recentPayments as $payment)
-                    <tr class="border-b">
-                        <td class="px-4 py-3">{{ $payment->feeRecord->student->name ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $payment->feeRecord->class_name ?? '-' }}</td>
-                        <td class="px-4 py-3">₹{{ number_format($payment->amount) }}</td>
-                        <td class="px-4 py-3">{{ $payment->payment_date->format('d M Y') }}</td>
-                        <td class="px-4 py-3 capitalize">{{ $payment->payment_mode }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="px-4 py-3 text-center text-gray-500">No payments yet.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <a href="{{ route('admin.students.index') }}"
+        class="bg-green-100 p-5 rounded-xl border border-green-200 hover:shadow-md hover:-translate-y-0.5 transition block">
+        <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">Fully Paid</p>
+        <p class="text-3xl font-bold text-green-800">{{ $fullyPaidCount }}</p>
+    </a>
+
+    <a href="{{ route('admin.students.index', ['status' => 'pending']) }}"
+        class="bg-yellow-100 p-5 rounded-xl border border-yellow-200 hover:shadow-md hover:-translate-y-0.5 transition block">
+        <p class="text-xs font-semibold text-yellow-700 uppercase tracking-wide mb-2">Pending</p>
+        <p class="text-3xl font-bold text-yellow-800">{{ $pendingCount }}</p>
+    </a>
+
+    <a href="{{ route('admin.students.index', ['status' => 'overdue']) }}"
+        class="bg-red-100 p-5 rounded-xl border border-red-200 hover:shadow-md hover:-translate-y-0.5 transition block">
+        <p class="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Overdue</p>
+        <p class="text-3xl font-bold text-red-800">{{ $overdueCount }}</p>
+    </a>
+
+    <div class="bg-blue-100 p-5 rounded-xl border border-blue-200">
+        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">Reminders Queued</p>
+        <p class="text-3xl font-bold text-blue-800">{{ $queuedReminders }}</p>
     </div>
+</div>
 @endsection

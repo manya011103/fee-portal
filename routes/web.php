@@ -32,6 +32,15 @@ Route::middleware('auth:web')->prefix('admin')->group(function () {
 
     Route::resource('students', StudentController::class)->names('admin.students');
 
+    Route::get('/payment-report', [PaymentReportController::class, 'index'])->name('admin.payment-report');
+        Route::get('/scholarship-lapse-report', [ScholarshipLapseReportController::class, 'index'])
+    ->name('admin.scholarship-lapse-report');
+    Route::get('/no-dues-report', [NoDuesReportController::class, 'index'])
+    ->name('admin.no-dues-report');
+
+    Route::get('/late-fee-report', [LateFeeReportController::class, 'index'])
+    ->name('admin.late-fee-report');
+
     Route::middleware('throttle:5,1')->group(function () {
         Route::post('/students/{student}/due-date/request-otp', [DueDateController::class, 'requestOtp'])
             ->name('admin.students.due-date.request-otp');
@@ -40,14 +49,7 @@ Route::middleware('auth:web')->prefix('admin')->group(function () {
         Route::post('/students/{student}/due-date/confirm', [DueDateController::class, 'confirm'])
             ->name('admin.students.due-date.confirm');
 
-        Route::get('/payment-report', [PaymentReportController::class, 'index'])->name('admin.payment-report');
-        Route::get('/scholarship-lapse-report', [ScholarshipLapseReportController::class, 'index'])
-    ->name('admin.scholarship-lapse-report');
-    Route::get('/no-dues-report', [NoDuesReportController::class, 'index'])
-    ->name('admin.no-dues-report');
-
-    Route::get('/late-fee-report', [LateFeeReportController::class, 'index'])
-    ->name('admin.late-fee-report');
+        
     });
 });
 

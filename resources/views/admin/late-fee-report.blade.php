@@ -32,8 +32,8 @@
             Apply Filter
         </button>
 
-        <a href="{{ route('admin.late-fee-report') }}" class="text-sm text-gray-500 hover:underline py-2">
-            Reset
+        <a href="{{ route('admin.late-fee-report') }}" class="text-gray-500 hover:text-gray-700 border border-gray-300 hover:border-gray-400 px-4 py-1.5 rounded text-sm font-medium">
+                    Reset
         </a>
     </form>
 

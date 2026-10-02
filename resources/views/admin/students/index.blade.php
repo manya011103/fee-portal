@@ -51,6 +51,8 @@
     </div>
 
     <div class="mt-4">
+    @if (method_exists($students, 'links'))
         {{ $students->links() }}
-    </div>
+    @endif
+</div>
 @endsection
