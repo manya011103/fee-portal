@@ -3,7 +3,6 @@
 @section('title', 'Scholarship Lapse Report')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">Scholarship Lapse Report</h1>
 
     <form method="GET" action="{{ route('admin.scholarship-lapse-report') }}"
         class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6 flex flex-wrap items-end gap-4">

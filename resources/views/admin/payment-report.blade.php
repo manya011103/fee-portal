@@ -3,7 +3,6 @@
 @section('title', 'Payment Report')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">Payment Report</h1>
 
     <!-- Filters -->
     <form method="GET" action="{{ route('admin.payment-report') }}"

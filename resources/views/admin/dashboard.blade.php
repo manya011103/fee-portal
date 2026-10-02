@@ -3,7 +3,6 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
 
     <!-- Financial Summary (date-filtered) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
@@ -72,7 +71,7 @@
         <p class="text-3xl font-bold text-gray-800">{{ $totalStudents }}</p>
     </a>
 
-    <a href="{{ route('admin.students.index') }}"
+    <a href="{{ route('admin.students.index', ['status' => 'fully_paid']) }}"
         class="bg-green-100 p-5 rounded-xl border border-green-200 hover:shadow-md hover:-translate-y-0.5 transition block">
         <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">Fully Paid</p>
         <p class="text-3xl font-bold text-green-800">{{ $fullyPaidCount }}</p>

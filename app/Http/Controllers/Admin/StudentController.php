@@ -27,6 +27,13 @@ class StudentController extends Controller
         });
     }
 
+
+     if ($status === 'fully_paid') {
+         $query->whereDoesntHave('feeRecords', function ($q) {
+             $q->where('is_fully_paid', false);
+         });
+     }
+
     if ($status === 'overdue') {
         $query->whereHas('feeRecords', function ($q) {
             $q->where('is_fully_paid', false);
