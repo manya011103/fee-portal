@@ -19,6 +19,17 @@ class StudentController extends Controller
         });
     }
 
+
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+                ->orWhere('enrollment_no', 'like', "%{$search}%")
+                ->orWhere('mobile', 'like', "%{$search}%");
+        });
+    }
+
     $status = $request->input('status');
 
     if ($status === 'pending') {

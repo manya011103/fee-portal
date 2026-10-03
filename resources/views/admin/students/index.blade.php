@@ -15,23 +15,46 @@
 <h1 class="text-2xl font-bold mb-6">{{ $pageTitle }}</h1>
 
     <!-- Class Filter -->
-    <form method="GET" action="{{ route('admin.students.index') }}" class="mb-4">
-    @if (request('status'))
-        <input type="hidden" name="status" value="{{ request('status') }}">
-    @endif
+    <!-- Filters -->
+    <form method="GET" action="{{ route('admin.students.index') }}"
+        class="mb-4 flex flex-wrap items-center gap-3">
 
-    <select name="class" onchange="this.form.submit()"
-        class="border rounded px-3 py-2 text-sm">
-        <option value="">All Classes</option>
+        @if (request('status'))
+            <input type="hidden" name="status" value="{{ request('status') }}">
+        @endif
 
-        @foreach ($classes as $class)
-            <option value="{{ $class }}"
-                {{ request('class') == $class ? 'selected' : '' }}>
-                {{ $class }}
-            </option>
-        @endforeach
-    </select>
-</form>
+        <input
+            type="search"
+            name="search"
+            value="{{ request('search') }}"
+            placeholder="Search by name, enrollment no, or mobile..."
+            class="border rounded px-3 py-2 text-sm w-full md:w-80"
+        >
+
+        <select name="class" onchange="this.form.submit()"
+            class="border rounded px-3 py-2 text-sm">
+            <option value="">All Classes</option>
+
+            @foreach ($classes as $class)
+                <option value="{{ $class }}"
+                    {{ request('class') == $class ? 'selected' : '' }}>
+                    {{ $class }}
+                </option>
+            @endforeach
+        </select>
+
+        <button type="submit"
+            class="bg-indigo-600 text-white rounded px-4 py-2 text-sm hover:bg-indigo-700">
+            Search
+        </button>
+
+        @if (request('search') || request('class'))
+            <a href="{{ route('admin.students.index', ['status' => request('status')]) }}"
+                class="text-red-600 hover:underline text-sm">
+                Clear
+            </a>
+        @endif
+    </form>
 
     <div class="bg-white rounded shadow overflow-x-auto">
         <table class="w-full text-left">
